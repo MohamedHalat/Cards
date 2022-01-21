@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-overlay',
@@ -6,10 +6,16 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./overlay.component.scss']
 })
 export class OverlayComponent implements OnInit {
+  @Output() addToHand = new EventEmitter();
+
 
   constructor() { }
 
   ngOnInit(): void {
+  }
+
+  clicked() {
+    this.addToHand.emit();
   }
 
 }

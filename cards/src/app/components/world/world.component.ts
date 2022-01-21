@@ -6,6 +6,8 @@ import { Table } from '../../classes/table';
 import { SceneObject } from '../../classes/sceneObject';
 import * as CANNON from 'cannon';
 import { Deck } from 'src/app/classes/deck';
+import { Hand } from 'src/app/classes/hand';
+import { MenuItem } from 'primeng/api';
 
 export let sceneObjects: SceneObject[] = []
 
@@ -27,6 +29,16 @@ export class WorldComponent implements OnInit, AfterViewInit {
 
   private deck: Deck;
   private table: Table;
+  private playerHand: Hand;
+
+  public actions: MenuItem[] = [];
+  private readonly DefaultActions: MenuItem[] = [
+    {
+      label: 'Lock Camera',
+      icon: 'pi pi-lock',
+      command: () => this.lockCamera()
+    }
+  ]
 
   constructor() { }
 
@@ -36,6 +48,7 @@ export class WorldComponent implements OnInit, AfterViewInit {
     this.createScene();
     this.lightScene();
     this.renderCards();
+    this.playerHand = new Hand();
 
     this.renderCycle();
   }
@@ -86,7 +99,27 @@ export class WorldComponent implements OnInit, AfterViewInit {
     const intersects = raycaster.intersectObjects(sceneObjects.map(obj => obj.obj));
 
     if (intersects.length > 0) {
-      sceneObjects.find(obj => obj.obj === intersects[0].object)?.clicked();
+      let obj = sceneObjects.find(obj => obj.obj === intersects[0].object);
+      if (obj) {
+        obj.clicked();
+        if (obj.selected) {
+          this.actions = this.actions.concat([
+            {
+              label: 'Add to hand',
+              icon: 'pi pi-plus',
+              command: () => this.addToHand()
+            },
+            {
+              label: 'Flip',
+              icon: 'pi pi-refresh',
+              command: () => obj?.flip()
+            }
+          ]);
+
+        } else {
+          this.actions = this.DefaultActions;
+        }
+      }
     }
   }
 
@@ -101,6 +134,9 @@ export class WorldComponent implements OnInit, AfterViewInit {
     sceneObjects.push(this.deck);
   }
 
+  private lockCamera() {
+    this.controls.enabled = !this.controls.enabled;
+  }
 
   private lightScene() {
     const pointLight = new THREE.PointLight(0xFFFFFF, 1, 1000);
@@ -117,6 +153,9 @@ export class WorldComponent implements OnInit, AfterViewInit {
     this.renderer.render(this.scene, this.camera);
   }
 
+  addToHand() {
+    this.deck.addToHand(this.playerHand);
+  }
 
   private get canvas(): HTMLCanvasElement {
     return this.canvasRef.nativeElement;

@@ -42,6 +42,8 @@ export class Card extends SceneObject{
   private material: THREE.MeshStandardMaterial;
   private texture: THREE.Texture;
 
+  public hidden: boolean = true;
+
   constructor(
     scene: THREE.Scene,
     world: CANNON.World,
@@ -52,14 +54,14 @@ export class Card extends SceneObject{
 
   addToScene() {
     const loader = new THREE.TextureLoader();
-    this.texture = loader.load(`../../assets/cards-front/${this.id}.png`);
+    this.texture = loader.load(this.hidden ? `../../assets/card-back.png` : `../../assets/cards-front/${this.id}.png`);
     this.texture.wrapS = THREE.ClampToEdgeWrapping;
     this.texture.wrapT = THREE.ClampToEdgeWrapping;
     this.texture.repeat.set(1, 1);
     this.texture.anisotropy = 16;
     this.texture.encoding = THREE.sRGBEncoding;
 
-    this.geometry = new THREE.BoxGeometry(1, 0.01, 1.6, 100);
+    this.geometry = new THREE.BoxGeometry(1, 0.01, 1.6);
     this.material = new THREE.MeshStandardMaterial({ map: this.texture });
     this.obj = new THREE.Mesh(this.geometry, this.material);
     this.obj.position.set(0, 1, 0);
@@ -75,6 +77,18 @@ export class Card extends SceneObject{
     this.scene.add(this.obj);
   }
 
+  flip() {
+  }
+
+  render(): void {
+      super.render();
+
+      if (this.hidden) {
+        // update texture
+        this.texture.needsUpdate = true;
+      }
+  }
+
   clicked() {
     super.clicked();
 
@@ -84,6 +98,6 @@ export class Card extends SceneObject{
       this.material.color.set(0xffffff);
     }
 
-    console.log(this.id);
+    console.log(this.id, this.selected);
   }
 }

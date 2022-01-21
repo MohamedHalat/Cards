@@ -24,6 +24,14 @@ export abstract class SceneObject {
     }
   }
 
+  removeFromScene() {
+    this.scene.remove(this.obj);
+    this.world.remove(this.body);
+  }
+
+  flip() {
+  }
+
   clicked() {
     this.selected = !this.selected;
   }

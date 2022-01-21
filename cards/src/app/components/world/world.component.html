@@ -1,2 +1,3 @@
-<p-contextMenu [target]="canvas" [model]="[{label: 'Test'}]" (onShow)="mouseEvents($event)" ></p-contextMenu>
+<app-overlay (addToHand)="addToHand()"></app-overlay>
+<p-contextMenu [target]="canvas" [model]="actions" (onShow)="mouseEvents($event)" ></p-contextMenu>
 <canvas #canvas id="canvas" ></canvas>

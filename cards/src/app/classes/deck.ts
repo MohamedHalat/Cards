@@ -3,6 +3,7 @@ import * as THREE from "three";
 import * as CANNON from "cannon";
 import { SceneObject } from "./sceneObject";
 import { sceneObjects } from "../components/world/world.component";
+import { Hand } from "./hand";
 
 export class Deck extends SceneObject{
 
@@ -19,15 +20,13 @@ export class Deck extends SceneObject{
   }
 
   public createDeck() {
-    this.cardIds
+    this.cards = this.cardIds
       .sort(() => Math.random() - 0.5)
-      .forEach(id => {
-        this.cards.push(
-          new Card(
-            this.scene,
-            this.world,
-            id,
-          )
+      .map(id => {
+        return new Card(
+          this.scene,
+          this.world,
+          id,
         );
       });
   }
@@ -45,7 +44,6 @@ export class Deck extends SceneObject{
     this.material = new THREE.MeshStandardMaterial({ map: this.texture });
     this.obj = new THREE.Mesh(this.geometry, this.material);
     this.obj.position.set(10, 1, 0);
-    this.obj.castShadow = true;
 
     this.body = new CANNON.Body({
       mass: 1,
@@ -65,6 +63,17 @@ export class Deck extends SceneObject{
       card.addToScene();
       sceneObjects.push(card);
     }
+  }
+
+  addToHand(hand: Hand) {
+    let cards = this.cards.filter(c => c.selected);
+    cards.forEach(c => {
+      c.removeFromScene();
+      hand.cards.push(c);
+      c.selected = false;
+    });
+
+    console.log(hand.cards);
   }
 
   get cardIds(): CardId[] {
