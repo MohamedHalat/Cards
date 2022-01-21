@@ -5,6 +5,7 @@ import { Card } from '../../classes/card';
 import { Table } from '../../classes/table';
 import { SceneObject } from '../../classes/sceneObject';
 import * as CANNON from 'cannon';
+import { Deck } from 'src/app/classes/deck';
 
 export let sceneObjects: SceneObject[] = []
 
@@ -24,6 +25,7 @@ export class WorldComponent implements OnInit, AfterViewInit {
   private camera: THREE.PerspectiveCamera;
   private controls: OrbitControls;
 
+  private deck: Deck;
   private table: Table;
 
   constructor() { }
@@ -43,21 +45,6 @@ export class WorldComponent implements OnInit, AfterViewInit {
 
     this.world = new CANNON.World();
     this.world.gravity.set(0, -9.82, 0);
-
-    let box = new CANNON.Body({
-      mass: 0.2,
-      position: new CANNON.Vec3(0, 0, 0),
-      shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)),
-    });
-
-    const groundBody = new CANNON.Body({
-      type: CANNON.Body.STATIC, // can also be achieved by setting the mass to 0
-      shape: new CANNON.Plane(),
-    })
-    groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0) // make it face up
-    this.world.addBody(groundBody)
-
-    console.log(this.world)
 
     this.scene = new THREE.Scene();
 
@@ -109,13 +96,9 @@ export class WorldComponent implements OnInit, AfterViewInit {
     this.table.addToScene();
     sceneObjects.push(this.table);
 
-    let card = new Card(this.scene, this.world, 'black', 'uno card');
-    card.addToScene();
-    sceneObjects.push(card);
-
-    let card2 = new Card(this.scene, this.world, 'white', 'uno card');
-    card2.addToScene();
-    sceneObjects.push(card2);
+    this.deck = new Deck(this.scene, this.world);
+    this.deck.addToScene();
+    sceneObjects.push(this.deck);
   }
 
 

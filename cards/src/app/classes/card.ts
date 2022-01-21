@@ -2,13 +2,39 @@ import * as THREE from "three";
 import * as CANNON from "cannon";
 import { SceneObject } from "./sceneObject";
 
-export enum CardColor {
-  BLACK,
-  YELLOW,
-  RED,
-  BLUE,
-  GREEN,
-}
+export const CardColor  = {
+  YELLOW: 'Y',
+  RED: 'R',
+  BLUE: 'G',
+  GREEN: 'B',
+} as const;
+
+export const CardType = {
+  ONE: 1,
+  TWO: 2,
+  THREE: 3,
+  FOUR: 4,
+  FIVE: 5,
+  SIX: 6,
+  SEVEN: 7,
+  EIGHT: 8,
+  NINE: 9,
+
+
+  SKIP: 'skip',
+  REVERSE: '_',
+  DRAW_TWO: 'D2',
+} as const;
+
+export const WildCard = {
+  WILD: 'W',
+  WILD_DRAW_FOUR: 'D4W',
+} as const
+
+type ValueOf<T> = T[keyof T];
+
+
+export type CardId = `${ValueOf<typeof CardType>}${ValueOf<typeof CardColor>}` | ValueOf<typeof WildCard>;
 
 export class Card extends SceneObject{
 
@@ -19,15 +45,14 @@ export class Card extends SceneObject{
   constructor(
     scene: THREE.Scene,
     world: CANNON.World,
-    public type: string,
-    public image: string,
+    public id: CardId,
   ) {
     super(scene, world);
   }
 
   addToScene() {
     const loader = new THREE.TextureLoader();
-    this.texture = loader.load(`../../assets/${this.image}.jpeg`);
+    this.texture = loader.load(`../../assets/cards-front/${this.id}.png`);
     this.texture.wrapS = THREE.ClampToEdgeWrapping;
     this.texture.wrapT = THREE.ClampToEdgeWrapping;
     this.texture.repeat.set(1, 1);
@@ -38,7 +63,6 @@ export class Card extends SceneObject{
     this.material = new THREE.MeshStandardMaterial({ map: this.texture });
     this.obj = new THREE.Mesh(this.geometry, this.material);
     this.obj.position.set(0, 1, 0);
-    this.obj.castShadow = true;
 
     this.body = new CANNON.Body({
       mass: 1,
@@ -51,11 +75,6 @@ export class Card extends SceneObject{
     this.scene.add(this.obj);
   }
 
-  render() {
-    this.obj.position.copy((this.body.position as any));
-    this.obj.quaternion.copy((this.body.quaternion as any));
-  }
-
   clicked() {
     super.clicked();
 
@@ -65,6 +84,6 @@ export class Card extends SceneObject{
       this.material.color.set(0xffffff);
     }
 
-    console.log(this.type);
+    console.log(this.id);
   }
 }
