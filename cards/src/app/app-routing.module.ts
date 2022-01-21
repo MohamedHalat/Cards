@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { CubeComponent } from './cube/cube.component';
+import { WorldComponent } from './components/world/world.component';
 
 const routes: Routes = [
   {
     path: "",
-    component: CubeComponent
+    component: WorldComponent
   },
 ];
 

@@ -1,19 +1,19 @@
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { Card } from '../card';
-import { Table } from '../table';
-import { SceneObject } from '../sceneObject';
+import { Card } from '../../classes/card';
+import { Table } from '../../classes/table';
+import { SceneObject } from '../../classes/sceneObject';
 import * as CANNON from 'cannon';
 
 export let sceneObjects: SceneObject[] = []
 
 @Component({
-  selector: 'app-cube',
-  templateUrl: './cube.component.html',
-  styleUrls: ['./cube.component.scss']
+  selector: 'app-world',
+  templateUrl: './world.component.html',
+  styleUrls: ['./world.component.scss']
 })
-export class CubeComponent implements OnInit, AfterViewInit {
+export class WorldComponent implements OnInit, AfterViewInit {
 
   @ViewChild('canvas')
   private canvasRef: ElementRef;
