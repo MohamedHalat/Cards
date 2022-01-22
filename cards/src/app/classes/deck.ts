@@ -10,7 +10,7 @@ export class Deck extends SceneObject{
   public cards: Card[] = [];
 
   private geometry: THREE.BoxGeometry;
-  private material: THREE.MeshStandardMaterial;
+  private materials: THREE.MeshStandardMaterial[] = [];
   private texture: THREE.Texture;
 
   constructor(scene: THREE.Scene, world: CANNON.World) {
@@ -32,17 +32,8 @@ export class Deck extends SceneObject{
   }
 
   addToScene(): void {
-    const loader = new THREE.TextureLoader();
-    this.texture = loader.load(`../../assets/card-back.png`);
-    this.texture.wrapS = THREE.ClampToEdgeWrapping;
-    this.texture.wrapT = THREE.ClampToEdgeWrapping;
-    this.texture.repeat.set(1, 1);
-    this.texture.anisotropy = 16;
-    this.texture.encoding = THREE.sRGBEncoding;
-
-    this.geometry = new THREE.BoxGeometry(1, 1, 1.6);
-    this.material = new THREE.MeshStandardMaterial({ map: this.texture });
-    this.obj = new THREE.Mesh(this.geometry, this.material);
+    this.createTexture();
+    this.obj = new THREE.Mesh(this.geometry, this.materials);
     this.obj.position.set(10, 1, 0);
 
     this.body = new CANNON.Body({
@@ -56,12 +47,35 @@ export class Deck extends SceneObject{
     this.scene.add(this.obj);
   }
 
+  private createTexture() {
+    const loader = new THREE.TextureLoader();
+    this.texture = loader.load(`../../assets/card-back.png`);
+    this.texture.wrapS = THREE.RepeatWrapping;
+    this.texture.wrapT = THREE.RepeatWrapping;
+    this.texture.repeat.set(1, 1);
+    this.texture.anisotropy = 16;
+    this.texture.encoding = THREE.sRGBEncoding;
+
+    this.geometry = new THREE.BoxGeometry(1, 1, 1.6);
+    this.materials.push(new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
+    this.materials.push(new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
+    this.materials.push(new THREE.MeshStandardMaterial({ map: this.texture }));
+    this.materials.push(new THREE.MeshStandardMaterial({ map: this.texture }));
+    this.materials.push(new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
+    this.materials.push(new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
+  }
+
   clicked(): void {
     let card = this.inactiveCards[0];
-    console.log(card?.id)
     if (card) {
       card.addToScene();
       sceneObjects.push(card);
+
+      this.geometry.scale(1, 1/ ((this.inactiveCards.length + 1)/this.cards.length), 1);
+      this.geometry.scale(1, this.inactiveCards.length / this.cards.length, 1);
+      this.obj.position.y = this.obj.position.y - 0.5;
+    } else {
+      this.removeFromScene();
     }
   }
 

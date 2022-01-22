@@ -40,7 +40,7 @@ export type CardId = `${ValueOf<typeof CardType>}${ValueOf<typeof CardColor>}` |
 export class Card extends SceneObject{
 
   private geometry: THREE.BoxGeometry;
-  private material: THREE.MeshStandardMaterial;
+  private materials: THREE.MeshStandardMaterial[] = [];
   private texture: THREE.Texture;
 
   public hidden: boolean = true;
@@ -60,8 +60,8 @@ export class Card extends SceneObject{
     this.loadTexture();
 
     this.geometry = new THREE.BoxGeometry(1, 0.01, 1.6);
-    this.material = new THREE.MeshStandardMaterial({ map: this.texture });
-    this.obj = new THREE.Mesh(this.geometry, this.material);
+
+    this.obj = new THREE.Mesh(this.geometry, this.materials);
     this.obj.position.set(0, 1, 0);
 
     this.body = new CANNON.Body({
@@ -85,6 +85,13 @@ export class Card extends SceneObject{
     this.texture.repeat.set(1, 1);
     this.texture.anisotropy = 16;
     this.texture.encoding = THREE.sRGBEncoding;
+
+    this.materials.push(new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
+    this.materials.push(new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
+    this.materials.push(new THREE.MeshStandardMaterial({ map: this.texture }));
+    this.materials.push(new THREE.MeshStandardMaterial({ map: this.texture }));
+    this.materials.push(new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
+    this.materials.push(new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
   }
 
 
@@ -103,9 +110,9 @@ export class Card extends SceneObject{
     super.clicked();
 
     if (this.selected) {
-      this.material.color.set(0x8ddff0);
+      this.materials.forEach(m => m.color.set(0x8ddff0));
     } else {
-      this.material.color.set(0xffffff);
+      this.materials.forEach(m => m.color.set(0xffffff));
     }
 
     console.log(this.id, this.selected);

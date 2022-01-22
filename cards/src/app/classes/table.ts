@@ -21,7 +21,7 @@ export class Table extends SceneObject{
 
   addToScene() {
     const loader = new GLTFLoader();
-    loader.load('../../assets/uploads-files-2162109-round+table.glb', (gltf) => {
+    loader.load('../../assets/3d/uploads-files-2162109-round+table.glb', (gltf) => {
       this.obj = gltf.scene;
       this.obj.position.set(0, -10.9, 0);
       this.obj.scale.set(10, 10, 10);

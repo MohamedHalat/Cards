@@ -122,7 +122,10 @@ export class WorldComponent implements OnInit, AfterViewInit {
             {
               label: 'Add to hand',
               icon: 'pi pi-plus',
-              command: () => this.addToHand()
+              command: () => {
+                this.addToHand();
+                this.renderCycle();
+              }
             },
             {
               label: 'Flip',
