@@ -1,6 +1,12 @@
 import * as THREE from 'three';
 import * as CANNON from "cannon";
+import { Injectable } from '@angular/core';
+import { SceneService } from '../services/scene.service';
+import { WorldService } from '../services/world.service';
 
+@Injectable({
+  providedIn: 'root'
+})
 export abstract class SceneObject {
 
   public selected: boolean = false;
@@ -8,10 +14,15 @@ export abstract class SceneObject {
   public body: CANNON.Body; // Physics body
   public rendered: boolean = false;
 
+  protected world: WorldService;
+
+  private _needsUpdate: boolean = false;
+
   constructor(
-    protected scene: THREE.Scene,
-    protected world: CANNON.World
-  ) {}
+    protected scene: SceneService,
+  ) {
+    this.world = scene.world;
+  }
 
   abstract addToScene(): void;
 
@@ -25,14 +36,19 @@ export abstract class SceneObject {
   }
 
   removeFromScene() {
-    this.scene.remove(this.obj);
-    this.world.remove(this.body);
+    this.scene.removeFromScene(this);
+    this.world.removeFromWorld(this.body);
   }
 
   flip() {}
 
   needsUpdate(): boolean {
-    return !this.body?.velocity?.almostZero(0.08) || !this.body?.angularVelocity?.almostZero(0.08);
+    if (this._needsUpdate) return true;
+    if (this.body) {
+      return !this.body?.velocity?.almostZero(0.08) || !this.body?.angularVelocity?.almostZero(0.08);
+    }
+
+    return false;
   }
 
   clicked() {

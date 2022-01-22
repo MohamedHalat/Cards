@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import * as CANNON from "cannon";
 import { SceneObject } from "./sceneObject";
-import { AnimationService } from "../services/animation.service";
+import { SceneService } from "../services/scene.service";
 
 export const CardColor  = {
   YELLOW: 'Y',
@@ -49,11 +49,10 @@ export class Card extends SceneObject{
   private front: THREE.Texture;
 
   constructor(
-    scene: THREE.Scene,
-    world: CANNON.World,
+    scene: SceneService,
     public id: CardId,
   ) {
-    super(scene, world);
+    super(scene);
   }
 
   addToScene() {
@@ -74,8 +73,8 @@ export class Card extends SceneObject{
     // this.obj.castShadow = true;
 
     this.body.quaternion.setFromEuler(0, 0, 0);
-    this.world.addBody(this.body);
-    this.scene.add(this.obj);
+    this.world.addToWorld(this.body);
+    this.scene.addToScene(this);
   }
 
   private loadTexture() {

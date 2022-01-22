@@ -35,8 +35,8 @@ export class Table extends SceneObject{
 
       // this.obj.receiveShadow = true;
       // this.obj.castShadow = true;
-      this.world.addBody(this.body);
-      this.scene.add(this.obj);
+      this.world.addToWorld(this.body);
+      this.scene.addToScene(this);
     });
   }
 }

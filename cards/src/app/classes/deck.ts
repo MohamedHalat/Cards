@@ -2,8 +2,8 @@ import { Card, CardColor, CardId, CardType, WildCard } from "./card";
 import * as THREE from "three";
 import * as CANNON from "cannon";
 import { SceneObject } from "./sceneObject";
-import { sceneObjects } from "../components/world/world.component";
 import { Hand } from "./hand";
+import { SceneService } from "../services/scene.service";
 
 export class Deck extends SceneObject{
 
@@ -13,8 +13,10 @@ export class Deck extends SceneObject{
   private materials: THREE.MeshStandardMaterial[] = [];
   private texture: THREE.Texture;
 
-  constructor(scene: THREE.Scene, world: CANNON.World) {
-    super(scene, world);
+  constructor(
+    protected scene: SceneService,
+  ) {
+    super(scene);
 
     this.createDeck();
   }
@@ -25,7 +27,6 @@ export class Deck extends SceneObject{
       .map(id => {
         return new Card(
           this.scene,
-          this.world,
           id,
         );
       });
@@ -50,8 +51,8 @@ export class Deck extends SceneObject{
     // this.obj.castShadow = true;
 
     this.body.quaternion.setFromEuler(0, 0, 0);
-    this.world.addBody(this.body);
-    this.scene.add(this.obj);
+    this.world.addToWorld(this.body);
+    this.scene.addToScene(this);
   }
 
   private createTexture() {
@@ -76,7 +77,6 @@ export class Deck extends SceneObject{
     let card = this.inactiveCards[0];
     if (card) {
       card.addToScene();
-      sceneObjects.push(card);
 
       this.geometry.scale(1, 1/ ((this.inactiveCards.length + 1)/this.cards.length), 1);
       this.geometry.scale(1, this.inactiveCards.length / this.cards.length, 1);

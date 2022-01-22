@@ -17,7 +17,7 @@ export class Group extends SceneObject {
 
     // this.body.quaternion.setFromEuler(0, 0, 0);
     // this.world.addBody(this.body);
-    this.scene.add(this.obj);
+    this.scene.addToScene(this);
   }
 
   addToGroup(obj: THREE.Object3D): void {
@@ -25,6 +25,6 @@ export class Group extends SceneObject {
   }
 
   removeFromGroup(obj: THREE.Object3D): void {
-    this.scene.attach(obj);
+    this.scene.scene.attach(obj);
   }
 }
