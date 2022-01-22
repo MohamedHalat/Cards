@@ -90,7 +90,7 @@ export class Deck extends SceneObject{
     let cards = this.cards.filter(c => c.selected);
     cards.forEach(c => {
       c.removeFromScene();
-      hand.cards.push(c);
+      hand.addToHand(c);
       c.selected = false;
     });
 

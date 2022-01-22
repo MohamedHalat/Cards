@@ -1,13 +1,18 @@
 import { Card } from "./card";
 import { SceneObject } from "./sceneObject";
-import * as THREE from "three";
-import * as CANNON from "cannon";
+import { Group } from "./group";
 
-export class Hand extends SceneObject{
+export class Hand extends Group{
 
   public cards: Card[] = [];
 
-  addToScene(): void {
-    this.obj = new THREE.Group();
+  addToHand(card: Card) {
+    this.addToGroup(card.obj);
+    this.cards.push(card);
+  }
+
+  removeFromHand(card: Card) {
+    this.removeFromGroup(card.obj);
+    this.cards = this.cards.filter(c => c !== card);
   }
 }

@@ -183,6 +183,7 @@ export class WorldComponent implements OnInit, AfterViewInit {
     sceneObjects.push(this.deck);
 
     this.playerHand = new Hand(this.scene, this.world);
+    this.playerHand.addToScene();
   }
 
   private lockCamera() {
