@@ -29,7 +29,10 @@ export abstract class SceneObject {
     this.world.remove(this.body);
   }
 
-  flip() {
+  flip() {}
+
+  needsUpdate(): boolean {
+    return !this.body?.velocity?.almostZero(0.08) || !this.body?.angularVelocity?.almostZero(0.08);
   }
 
   clicked() {

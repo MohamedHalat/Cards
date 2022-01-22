@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import * as CANNON from "cannon";
 import { SceneObject } from "./sceneObject";
+import { AnimationService } from "../services/animation.service";
 
 export const CardColor  = {
   YELLOW: 'Y',
@@ -44,6 +45,9 @@ export class Card extends SceneObject{
 
   public hidden: boolean = true;
 
+  private back: THREE.Texture;
+  private front: THREE.Texture;
+
   constructor(
     scene: THREE.Scene,
     world: CANNON.World,
@@ -53,13 +57,7 @@ export class Card extends SceneObject{
   }
 
   addToScene() {
-    const loader = new THREE.TextureLoader();
-    this.texture = loader.load(this.hidden ? `../../assets/card-back.png` : `../../assets/cards-front/${this.id}.png`);
-    this.texture.wrapS = THREE.ClampToEdgeWrapping;
-    this.texture.wrapT = THREE.ClampToEdgeWrapping;
-    this.texture.repeat.set(1, 1);
-    this.texture.anisotropy = 16;
-    this.texture.encoding = THREE.sRGBEncoding;
+    this.loadTexture();
 
     this.geometry = new THREE.BoxGeometry(1, 0.01, 1.6);
     this.material = new THREE.MeshStandardMaterial({ map: this.texture });
@@ -77,16 +75,28 @@ export class Card extends SceneObject{
     this.scene.add(this.obj);
   }
 
-  flip() {
+  private loadTexture() {
+    const loader = new THREE.TextureLoader();
+    this.front = loader.load(`../../assets/cards-front/${this.id}.png`);
+    this.back = loader.load(`../../assets/card-back.png`);
+    this.texture = this.hidden ? this.back : this.front;
+    this.texture.wrapS = THREE.ClampToEdgeWrapping;
+    this.texture.wrapT = THREE.ClampToEdgeWrapping;
+    this.texture.repeat.set(1, 1);
+    this.texture.anisotropy = 16;
+    this.texture.encoding = THREE.sRGBEncoding;
   }
 
-  render(): void {
-      super.render();
 
-      if (this.hidden) {
-        // update texture
-        this.texture.needsUpdate = true;
-      }
+  flip() {
+    if (this.hidden) {
+      this.texture.image.src = `../../assets/cards-front/${this.id}.png`;
+    } else {
+      this.texture.image.src = `../../assets/card-back.png`;
+    }
+
+    this.texture.needsUpdate = true;
+    this.hidden = !this.hidden;
   }
 
   clicked() {

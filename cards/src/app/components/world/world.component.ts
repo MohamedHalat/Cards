@@ -6,8 +6,10 @@ import { Table } from '../../classes/table';
 import { SceneObject } from '../../classes/sceneObject';
 import * as CANNON from 'cannon';
 import { Deck } from 'src/app/classes/deck';
+import { Group } from 'src/app/classes/group';
 import { Hand } from 'src/app/classes/hand';
 import { MenuItem } from 'primeng/api';
+import { AnimationService } from 'src/app/services/animation.service';
 
 export let sceneObjects: SceneObject[] = []
 
@@ -31,7 +33,7 @@ export class WorldComponent implements OnInit, AfterViewInit {
   private table: Table;
   private playerHand: Hand;
 
-  public actions: MenuItem[] = [];
+  public actions: MenuItem[];
   private readonly DefaultActions: MenuItem[] = [
     {
       label: 'Lock Camera',
@@ -40,24 +42,26 @@ export class WorldComponent implements OnInit, AfterViewInit {
     }
   ]
 
-  constructor() { }
+  constructor(private animationService: AnimationService) { }
 
   ngOnInit(): void {}
 
   ngAfterViewInit() {
+    this.actions = this.DefaultActions;
+
     this.createScene();
+    this.createAnimationCycle();
     this.lightScene();
     this.renderCards();
-    this.playerHand = new Hand();
 
     this.renderCycle();
   }
 
 
   private createScene() {
-
     this.world = new CANNON.World();
     this.world.gravity.set(0, -9.82, 0);
+    this.world.broadphase = new CANNON.NaiveBroadphase();
 
     this.scene = new THREE.Scene();
 
@@ -78,6 +82,15 @@ export class WorldComponent implements OnInit, AfterViewInit {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
     this.canvas.addEventListener('click', (event) => this.mouseEvents(event));
+  }
+
+  private createAnimationCycle() {
+    this.animationService.scene = this.scene;
+    this.animationService.world = this.world;
+    this.animationService.renderer = this.renderer;
+    this.animationService.camera = this.camera;
+
+    this.controls.addEventListener('change', () => this.renderCycle());
   }
 
   mouseEvents(event: any) {
@@ -102,8 +115,10 @@ export class WorldComponent implements OnInit, AfterViewInit {
       let obj = sceneObjects.find(obj => obj.obj === intersects[0].object);
       if (obj) {
         obj.clicked();
-        if (obj.selected) {
-          this.actions = this.actions.concat([
+        this.renderCycle();
+
+        if (this.deck.cards.filter(c => c.selected).length > 0) {
+          this.actions = this.DefaultActions.concat([
             {
               label: 'Add to hand',
               icon: 'pi pi-plus',
@@ -112,7 +127,10 @@ export class WorldComponent implements OnInit, AfterViewInit {
             {
               label: 'Flip',
               icon: 'pi pi-refresh',
-              command: () => obj?.flip()
+              command: () => {
+                obj?.flip();
+                this.renderCycle();
+              }
             }
           ]);
 
@@ -132,6 +150,8 @@ export class WorldComponent implements OnInit, AfterViewInit {
     this.deck = new Deck(this.scene, this.world);
     this.deck.addToScene();
     sceneObjects.push(this.deck);
+
+    this.playerHand = new Hand();
   }
 
   private lockCamera() {
@@ -146,11 +166,7 @@ export class WorldComponent implements OnInit, AfterViewInit {
   }
 
   private renderCycle() {
-    requestAnimationFrame(() => this.renderCycle());
-
-    this.world.step(1 / 45);
-    sceneObjects.forEach(obj => obj.render());
-    this.renderer.render(this.scene, this.camera);
+    this.animationService.animate();
   }
 
   addToHand() {
