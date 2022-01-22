@@ -70,6 +70,9 @@ export class Card extends SceneObject{
       shape: new CANNON.Box(new CANNON.Vec3(1, 0.01, 1.6)),
     });
 
+    // this.obj.receiveShadow = true;
+    // this.obj.castShadow = true;
+
     this.body.quaternion.setFromEuler(0, 0, 0);
     this.world.addBody(this.body);
     this.scene.add(this.obj);

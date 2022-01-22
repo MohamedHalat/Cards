@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { DragControls } from 'three/examples/jsm/controls/DragControls';
 import { Card } from '../../classes/card';
 import { Table } from '../../classes/table';
 import { SceneObject } from '../../classes/sceneObject';
@@ -27,7 +28,11 @@ export class WorldComponent implements OnInit, AfterViewInit {
   private scene: THREE.Scene;
   private world: CANNON.World;
   private camera: THREE.PerspectiveCamera;
-  private controls: OrbitControls;
+  private controls: OrbitControls | DragControls;
+  private orbitControls: OrbitControls;
+  private dragControls: DragControls;
+
+  private conrolsLock = true;
 
   private deck: Deck;
   private table: Table;
@@ -55,6 +60,8 @@ export class WorldComponent implements OnInit, AfterViewInit {
     this.renderCards();
 
     this.renderCycle();
+    // this.setDragControls();
+    this.setOrbitControls();
   }
 
 
@@ -79,9 +86,32 @@ export class WorldComponent implements OnInit, AfterViewInit {
     this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
 
     this.camera.position.setZ(30);
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
     this.canvas.addEventListener('click', (event) => this.mouseEvents(event));
+    // this.setOrbitControls();
+
+    //
+  }
+
+  private setOrbitControls() {
+    this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.orbitControls.addEventListener('change', () => this.renderCycle());
+    this.controls = this.orbitControls;
+  }
+
+  private setDragControls() {
+    this.dragControls = new DragControls(this.deck.cards.map(c => c.obj), this.camera, this.renderer.domElement);
+    this.dragControls.addEventListener('change', () => this.renderCycle());
+
+    this.dragControls.addEventListener( 'dragstart', function ( event ) {
+      event.object.material.emissive.set( 0xaaaaaa );
+    } );
+
+    this.dragControls.addEventListener( 'dragend', function ( event ) {
+      event.object.material.emissive.set( 0x000000 );
+    });
+
+    this.controls = this.dragControls;
   }
 
   private createAnimationCycle() {
@@ -89,8 +119,6 @@ export class WorldComponent implements OnInit, AfterViewInit {
     this.animationService.world = this.world;
     this.animationService.renderer = this.renderer;
     this.animationService.camera = this.camera;
-
-    this.controls.addEventListener('change', () => this.renderCycle());
   }
 
   mouseEvents(event: any) {
@@ -154,11 +182,21 @@ export class WorldComponent implements OnInit, AfterViewInit {
     this.deck.addToScene();
     sceneObjects.push(this.deck);
 
-    this.playerHand = new Hand();
+    this.playerHand = new Hand(this.scene, this.world);
   }
 
   private lockCamera() {
-    this.controls.enabled = !this.controls.enabled;
+    if (this.conrolsLock) {
+      this.setDragControls();
+      this.dragControls.enabled = true;
+      this.orbitControls.enabled = false;
+    }
+    else {
+      this.setOrbitControls();
+      this.dragControls.enabled = false;
+      this.orbitControls.enabled = true;
+    }
+    this.conrolsLock = !this.conrolsLock;
   }
 
   private lightScene() {
@@ -166,6 +204,18 @@ export class WorldComponent implements OnInit, AfterViewInit {
     pointLight.position.set(20, 20, 20);
     const ambientLight = new THREE.AmbientLight(0xffffff);
     this.scene.add(pointLight, ambientLight);
+
+    // const light = new THREE.SpotLight(0xffffff, 1.5);
+    // light.position.set(220, 500, 10);
+    // light.angle = Math.PI / 9;
+
+    // light.castShadow = true;
+    // light.shadow.camera.near = 1000;
+    // light.shadow.camera.far = 2000;
+    // light.shadow.mapSize.width = 1024;
+    // light.shadow.mapSize.height = 1024;
+
+    // this.scene.add(light);
   }
 
   private renderCycle() {

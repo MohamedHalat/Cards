@@ -33,6 +33,8 @@ export class Table extends SceneObject{
       });
       this.body.quaternion.setFromEuler(0, 0, 0);
 
+      // this.obj.receiveShadow = true;
+      // this.obj.castShadow = true;
       this.world.addBody(this.body);
       this.scene.add(this.obj);
     });
