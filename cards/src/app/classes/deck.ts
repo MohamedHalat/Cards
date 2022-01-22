@@ -31,14 +31,18 @@ export class Deck extends SceneObject{
       });
   }
 
+  render(): void {
+    this.rendered = true;
+  }
+
   addToScene(): void {
     this.createTexture();
     this.obj = new THREE.Mesh(this.geometry, this.materials);
-    this.obj.position.set(10, 1, 0);
+    this.obj.position.set(3, 0.5, 2);
 
     this.body = new CANNON.Body({
       mass: 1,
-      position: new CANNON.Vec3(-3, 1, 0),
+      position: new CANNON.Vec3(3, 2, 2),
       shape: new CANNON.Box(new CANNON.Vec3(1, 1, 1.6)),
     });
 
@@ -73,7 +77,7 @@ export class Deck extends SceneObject{
 
       this.geometry.scale(1, 1/ ((this.inactiveCards.length + 1)/this.cards.length), 1);
       this.geometry.scale(1, this.inactiveCards.length / this.cards.length, 1);
-      this.obj.position.y = this.obj.position.y - 0.5;
+      this.obj.position.y = this.obj.position.y - this.inactiveCards.length / (this.cards.length * 75);
     } else {
       this.removeFromScene();
     }
