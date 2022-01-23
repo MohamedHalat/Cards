@@ -45,11 +45,11 @@ export class WorldComponent implements OnInit, AfterViewInit {
     }
   ]
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.actions = this.DefaultActions;
+  }
 
   ngAfterViewInit() {
-    this.actions = this.DefaultActions;
-
     this.canvas.addEventListener('click', (event) => this.mouseEvents(event));
 
     this.renderer = new RendererService();
